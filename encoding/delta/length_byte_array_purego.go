@@ -3,7 +3,7 @@
 package delta
 
 import (
-	"github.com/segmentio/parquet-go/encoding/plain"
+	"github.com/vc42/parquet-go/encoding/plain"
 )
 
 func decodeLengthByteArray(dst, src []byte, lengths []int32) ([]byte, error) {

@@ -6,10 +6,10 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"github.com/segmentio/parquet-go/compress"
-	"github.com/segmentio/parquet-go/deprecated"
-	"github.com/segmentio/parquet-go/encoding"
-	"github.com/segmentio/parquet-go/format"
+	"github.com/vc42/parquet-go/compress"
+	"github.com/vc42/parquet-go/deprecated"
+	"github.com/vc42/parquet-go/encoding"
+	"github.com/vc42/parquet-go/format"
 )
 
 // Node values represent nodes of a parquet schema.

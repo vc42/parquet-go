@@ -9,8 +9,8 @@ import (
 	"math/rand"
 	"testing"
 
-	"github.com/segmentio/parquet-go/encoding"
-	"github.com/segmentio/parquet-go/encoding/plain"
+	"github.com/vc42/parquet-go/encoding"
+	"github.com/vc42/parquet-go/encoding/plain"
 )
 
 func EncodeBoolean(f *testing.F, e encoding.Encoding) {

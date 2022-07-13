@@ -5,7 +5,7 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/segmentio/parquet-go/internal/unsafecast"
+	"github.com/vc42/parquet-go/internal/unsafecast"
 )
 
 type int32Buffer struct {

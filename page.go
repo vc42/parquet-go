@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/segmentio/parquet-go/deprecated"
-	"github.com/segmentio/parquet-go/encoding/plain"
-	"github.com/segmentio/parquet-go/internal/bitpack"
-	"github.com/segmentio/parquet-go/internal/unsafecast"
+	"github.com/vc42/parquet-go/deprecated"
+	"github.com/vc42/parquet-go/encoding/plain"
+	"github.com/vc42/parquet-go/internal/bitpack"
+	"github.com/vc42/parquet-go/internal/unsafecast"
 )
 
 // Page values represent sequences of parquet values. From the Parquet

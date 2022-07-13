@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/segmentio/encoding/thrift"
-	"github.com/segmentio/parquet-go/format"
+	"github.com/vc42/parquet-go/format"
 )
 
 func TestMarshalUnmarshalSchemaMetadata(t *testing.T) {

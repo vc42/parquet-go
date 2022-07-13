@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/segmentio/parquet-go/internal/bytealg"
-	"github.com/segmentio/parquet-go/internal/quick"
+	"github.com/vc42/parquet-go/internal/bytealg"
+	"github.com/vc42/parquet-go/internal/quick"
 )
 
 func TestCount(t *testing.T) {

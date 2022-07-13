@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/segmentio/parquet-go"
+	"github.com/vc42/parquet-go"
 )
 
 func ExampleReadFile() {

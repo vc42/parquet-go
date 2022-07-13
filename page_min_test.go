@@ -5,7 +5,7 @@ import (
 	"math/rand"
 	"testing"
 
-	"github.com/segmentio/parquet-go/internal/quick"
+	"github.com/vc42/parquet-go/internal/quick"
 )
 
 func TestMinInt32(t *testing.T) {

@@ -3,7 +3,7 @@
 package delta
 
 import (
-	"github.com/segmentio/parquet-go/encoding/plain"
+	"github.com/vc42/parquet-go/encoding/plain"
 	"golang.org/x/sys/cpu"
 )
 

@@ -8,7 +8,7 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/segmentio/parquet-go/sparse"
+	"github.com/vc42/parquet-go/sparse"
 )
 
 const (

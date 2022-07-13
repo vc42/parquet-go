@@ -5,7 +5,7 @@ import (
 	"math/rand"
 	"testing"
 
-	"github.com/segmentio/parquet-go/encoding/plain"
+	"github.com/vc42/parquet-go/encoding/plain"
 )
 
 func TestDecodeLengthByteArray(t *testing.T) {

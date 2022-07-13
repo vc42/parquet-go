@@ -1,8 +1,8 @@
 package bytestreamsplit
 
 import (
-	"github.com/segmentio/parquet-go/encoding"
-	"github.com/segmentio/parquet-go/format"
+	"github.com/vc42/parquet-go/encoding"
+	"github.com/vc42/parquet-go/format"
 )
 
 // This encoder implements a version of the Byte Stream Split encoding as described

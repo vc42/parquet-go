@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/segmentio/parquet-go/internal/bitpack"
+	"github.com/vc42/parquet-go/internal/bitpack"
 )
 
 const (

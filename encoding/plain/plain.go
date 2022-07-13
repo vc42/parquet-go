@@ -9,9 +9,9 @@ import (
 	"io"
 	"math"
 
-	"github.com/segmentio/parquet-go/deprecated"
-	"github.com/segmentio/parquet-go/encoding"
-	"github.com/segmentio/parquet-go/format"
+	"github.com/vc42/parquet-go/deprecated"
+	"github.com/vc42/parquet-go/encoding"
+	"github.com/vc42/parquet-go/format"
 )
 
 const (

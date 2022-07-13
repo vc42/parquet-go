@@ -405,6 +405,9 @@ func (f *structField) Value(base reflect.Value) reflect.Value {
 	case reflect.Map:
 		return base.MapIndex(reflect.ValueOf(&f.name).Elem())
 	default:
+		if base.Kind() == reflect.Ptr {
+			base = base.Elem()
+		}
 		if len(f.index) == 1 {
 			return base.Field(f.index[0])
 		} else {
@@ -580,14 +583,14 @@ func makeStructField(f reflect.StructField) structField {
 			setNode(Decimal(scale, precision, baseType))
 		case "date":
 			switch t.Kind() {
-			case reflect.Int32:
+			case reflect.Int32, reflect.String:
 				setNode(Date())
 			default:
 				throwInvalidFieldTag(f, option)
 			}
 		case "timestamp":
 			switch t.Kind() {
-			case reflect.Int64:
+			case reflect.Int64, reflect.String:
 				timeUnit, err := parseTimestampArgs(args)
 				if err != nil {
 					throwInvalidFieldTag(f, args)

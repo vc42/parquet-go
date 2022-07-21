@@ -10,6 +10,7 @@ import (
 	"github.com/vc42/parquet-go/deprecated"
 	"github.com/vc42/parquet-go/internal/unsafecast"
 	"github.com/vc42/parquet-go/sparse"
+	"github.com/vc42/parquet-go/utils"
 )
 
 // writeRowsFunc is the type of functions that apply rows to a set of column
@@ -74,7 +75,24 @@ func writeRowsFuncOf(t reflect.Type, schema *Schema, path columnPath) writeRowsF
 func writeRowsFuncOfRequired(t reflect.Type, schema *Schema, path columnPath) writeRowsFunc {
 	column := schema.mapping.lookup(path)
 	columnIndex := column.columnIndex
+	logicalType := column.node.Type().LogicalType()
 	return func(columns []ColumnBuffer, rows sparse.Array, levels columnLevels) error {
+		// string Timestamp/Date:
+		switch {
+		case t.Kind() == reflect.String && logicalType.Timestamp != nil:
+			int64s := make([]int64, rows.Len())
+			for i := range int64s {
+				int64s[i] = utils.StringToTime(*(*string)(rows.Index(i))).UnixNano() / 1000000
+			}
+			rows = sparse.Array(sparse.MakeInt64Array(int64s))
+		case t.Kind() == reflect.String && logicalType.Date != nil:
+			int32s := make([]int32, rows.Len())
+			for i := range int32s {
+				int32s[i] = utils.StringToDate(*(*string)(rows.Index(i)))
+			}
+			rows = sparse.Array(sparse.MakeInt32Array(int32s))
+		}
+
 		columns[columnIndex].writeValues(rows, levels)
 		return nil
 	}
@@ -250,7 +268,9 @@ func writeRowsFuncOfSlice(t reflect.Type, schema *Schema, path columnPath) write
 			elemLevels := levels
 			if a.Len() > 0 {
 				b = a.Slice(0, 1)
-				elemLevels.definitionLevel++
+				if elemType.Kind() != reflect.Pointer {
+					elemLevels.definitionLevel++
+				}
 			}
 
 			if err := writeRows(columns, b, elemLevels); err != nil {

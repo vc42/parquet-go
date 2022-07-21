@@ -934,9 +934,6 @@ func (c *writerColumn) newColumnBuffer() ColumnBuffer {
 	columnBufferCapacity := sort.Search(math.MaxInt32, func(i int) bool {
 		return c.columnType.EstimateSize(i) >= int64(c.bufferSize)
 	})
-	if columnBufferCapacity > int(c.bufferSize) {
-		columnBufferCapacity = int(c.bufferSize)
-	}
 	column := c.columnType.NewColumnBuffer(int(c.bufferIndex), columnBufferCapacity)
 	switch {
 	case c.maxRepetitionLevel > 0:

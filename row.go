@@ -694,10 +694,6 @@ func reconstructFuncOfLeaf(columnIndex int16, node Node) (int16, reconstructFunc
 		if !row.startsWith(columnIndex) {
 			return row, fmt.Errorf("no values found in parquet row for column %d", columnIndex)
 		}
-		if value.Kind() == reflect.String && node.Type().LogicalType().Timestamp != nil {
-			value.SetString(utils.TimeMsToString(row[0].Int64()))
-			return row[1:], nil
-		}
 		switch {
 		case value.Kind() == reflect.String && logicalType.Timestamp != nil:
 			{

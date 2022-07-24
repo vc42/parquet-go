@@ -82,7 +82,7 @@ func writeRowsFuncOfRequired(t reflect.Type, schema *Schema, path columnPath) wr
 		case t.Kind() == reflect.String && logicalType.Timestamp != nil:
 			int64s := make([]int64, rows.Len())
 			for i := range int64s {
-				int64s[i] = utils.StringToTime(*(*string)(rows.Index(i))).UnixNano() / 1000000
+				int64s[i] = utils.StringToTimeMs(*(*string)(rows.Index(i)))
 			}
 			rows = sparse.Array(sparse.MakeInt64Array(int64s))
 		case t.Kind() == reflect.String && logicalType.Date != nil:

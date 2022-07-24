@@ -496,7 +496,7 @@ func deconstructFuncOfLeaf(columnIndex int16, node Node) (int16, deconstructFunc
 		if value.IsValid() {
 			switch {
 			case value.Kind() == reflect.String && logicalType.Timestamp != nil:
-				value = reflect.ValueOf(utils.StringToTime(value.String()).UnixNano() / 1000000)
+				value = reflect.ValueOf(utils.StringToTimeMs(value.String()))
 			case value.Kind() == reflect.String && logicalType.Date != nil:
 				value = reflect.ValueOf(utils.StringToDate(value.String()))
 			}

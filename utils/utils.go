@@ -22,6 +22,21 @@ func StringToTime(ts string) *time.Time {
 	return t
 }
 
+func StringToTimeMs(ts string) int64 {
+	var layout string
+	if strings.Contains(ts, "T") {
+		layout = time.RFC3339Nano
+	} else {
+		layout = "2006-01-02 15:04:05.000-07"
+	}
+	t, err := toolbox.ToTime(ts, layout)
+	if err != nil {
+		fmt.Println("failed to convert time: %s %v\n", ts, err)
+		return 0
+	}
+	return t.UnixNano() / 1000000
+}
+
 func TimeMsToString(millis int64) string {
 	layout := "2006-01-02 15:04:05.000-07"
 	time.Unix(0, millis*int64(time.Millisecond))

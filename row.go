@@ -571,11 +571,6 @@ func reconstructFuncOfRepeated(columnIndex int16, node Node) (int16, reconstruct
 			c = 10
 			value.Set(reflect.MakeSlice(t, c, c))
 		}
-		if t.Elem().Kind() == reflect.Ptr {
-			for i := 0; i < c; i++ {
-				value.Index(i).Set(reflect.New(t.Elem().Elem()))
-			}
-		}
 
 		defer func() {
 			value.Set(value.Slice(0, n))

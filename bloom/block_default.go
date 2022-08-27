@@ -1,4 +1,5 @@
 //go:build purego && parquet.bloom.no_unroll
+// +build purego,parquet.bloom.no_unroll
 
 package bloom
 

@@ -1,4 +1,5 @@
 //go:build !purego
+// +build !purego
 
 #include "funcdata.h"
 #include "textflag.h"

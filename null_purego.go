@@ -1,4 +1,6 @@
 //go:build go1.18 && (purego || !amd64)
+// +build go1.18
+// +build purego !amd64
 
 package parquet
 

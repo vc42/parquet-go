@@ -1,5 +1,4 @@
 //go:build go1.18 && !purego
-// +build go1.18,!purego
 
 package parquet
 

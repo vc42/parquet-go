@@ -11,9 +11,13 @@ func StringToTime(ts string) *time.Time {
 	if strings.Contains(ts, "T") {
 		layout = time.RFC3339Nano
 	}
+	if len(ts) > len(layout) {
+		fmt.Printf("time string '%s' longer than layout '%s', not converted\n", ts, layout)
+		return nil
+	}
 	t, err := time.Parse(layout[0:len(ts)], ts)
 	if err != nil {
-		fmt.Println("failed to convert time: %s %v\n", ts, err)
+		fmt.Printf("failed to convert time: %s %v\n", ts, err)
 		return nil
 	}
 	return &t
@@ -24,9 +28,13 @@ func StringToTimeMs(ts string) int64 {
 	if strings.Contains(ts, "T") {
 		layout = time.RFC3339Nano
 	}
+	if len(ts) > len(layout) {
+		fmt.Printf("time string '%s' longer than layout '%s', not converted\n", ts, layout)
+		return 0
+	}
 	t, err := time.Parse(layout[0:len(ts)], ts)
 	if err != nil {
-		fmt.Println("failed to convert time: %s %v\n", ts, err)
+		fmt.Printf("failed to convert time: %s %v\n", ts, err)
 		return 0
 	}
 	return t.UnixNano() / 1000000
@@ -42,6 +50,10 @@ func StringToDate(ts string) int32 {
 	layout := "2006-01-02 15:04:05.000-07"
 	if strings.Contains(ts, "T") {
 		layout = time.RFC3339Nano
+	}
+	if len(ts) > len(layout) {
+		fmt.Printf("time string '%s' longer than layout '%s', not converted\n", ts, layout)
+		return 0
 	}
 	t, err := time.Parse(layout[0:len(ts)], ts)
 	if err != nil {

@@ -94,17 +94,132 @@ func (c *conversion) Convert(target, source Row) (Row, error) {
 		}
 	}
 
-	for i, values := range buffer.columns {
+	// Widening a repeated schema by target-column order can break repeated-element
+	// adjacency (e.g. name1, name2, phoneNull, age1, age2, score1, score2).
+	// When we can recognize a simple repeated span, interleave the converted
+	// values back by repeated element here so reconstruction can stay on its
+	// direct fast path instead of relying on the slower row.go fallback.
+	if interleaved, ok := c.appendInterleavedRepeatedSpan(target, buffer.columns); ok {
+		return interleaved, nil
+	}
+
+	target = c.appendGroupedColumns(target, buffer.columns, 0, len(buffer.columns))
+	return target, nil
+}
+
+func (c *conversion) appendGroupedColumns(target Row, columns [][]Value, start, end int) Row {
+	for i := start; i < end; i++ {
+		values := columns[i]
 		if len(values) == 0 {
-			values = append(values, Value{
-				kind:        ^int8(c.targetColumnKinds[i]),
-				columnIndex: ^int16(i),
-			})
+			values = append(values, c.makeMissingValue(i, 0))
 		}
 		target = append(target, values...)
 	}
+	return target
+}
 
-	return target, nil
+func (c *conversion) appendInterleavedRepeatedSpan(target Row, columns [][]Value) (Row, bool) {
+	spanStart, spanEnd, elementCount, repetitionLevel, ok := detectRepeatedSpan(columns)
+	if !ok {
+		return nil, false
+	}
+
+	// Prefix and suffix columns remain in grouped form; only the detected
+	// repeated span needs reordering to restore repeated-element adjacency.
+	target = c.appendGroupedColumns(target, columns, 0, spanStart)
+
+	for elementIndex := 0; elementIndex < elementCount; elementIndex++ {
+		for columnIndex := spanStart; columnIndex <= spanEnd; columnIndex++ {
+			values := columns[columnIndex]
+			switch len(values) {
+			case 0:
+				target = append(target, c.makeMissingValue(columnIndex, repeatedLevelForElement(elementIndex, repetitionLevel)))
+			case elementCount:
+				target = append(target, values[elementIndex])
+			default:
+				return nil, false
+			}
+		}
+	}
+
+	target = c.appendGroupedColumns(target, columns, spanEnd+1, len(columns))
+	return target, true
+}
+
+func (c *conversion) makeMissingValue(columnIndex int, repetitionLevel int) Value {
+	return Value{
+		kind:            ^int8(c.targetColumnKinds[columnIndex]),
+		repetitionLevel: makeRepetitionLevel(repetitionLevel),
+		columnIndex:     ^int16(columnIndex),
+	}
+}
+
+func detectRepeatedSpan(columns [][]Value) (spanStart, spanEnd, elementCount, repetitionLevel int, ok bool) {
+	spanStart, spanEnd = -1, -1
+	for i, values := range columns {
+		if !columnHasRepeatedValues(values) {
+			continue
+		}
+		if spanStart < 0 {
+			spanStart = i
+		}
+		spanEnd = i
+		if len(values) > elementCount {
+			elementCount = len(values)
+		}
+		if rep := repeatedColumnLevel(values); rep > repetitionLevel {
+			repetitionLevel = rep
+		}
+	}
+
+	if spanStart < 0 || spanEnd == spanStart || elementCount < 2 {
+		return 0, 0, 0, 0, false
+	}
+
+	for i := spanStart; i <= spanEnd; i++ {
+		values := columns[i]
+		if len(values) == 0 {
+			continue
+		}
+		if len(values) != elementCount || !columnMatchesRepeatedSpan(values, repetitionLevel) {
+			return 0, 0, 0, 0, false
+		}
+	}
+
+	return spanStart, spanEnd, elementCount, repetitionLevel, true
+}
+
+func columnHasRepeatedValues(values []Value) bool {
+	return len(values) > 1 && repeatedColumnLevel(values) > 0
+}
+
+func repeatedColumnLevel(values []Value) int {
+	level := 0
+	for _, value := range values {
+		if rep := value.RepetitionLevel(); rep > level {
+			level = rep
+		}
+	}
+	return level
+}
+
+func columnMatchesRepeatedSpan(values []Value, repetitionLevel int) bool {
+	if len(values) < 2 || values[0].RepetitionLevel() != 0 {
+		return false
+	}
+	for _, value := range values[1:] {
+		if value.RepetitionLevel() != repetitionLevel {
+			return false
+		}
+	}
+	return true
+}
+
+func repeatedLevelForElement(index, repetitionLevel int) int {
+	if index == 0 {
+		return 0
+	}
+	return repetitionLevel
 }
 
 func (c *conversion) Column(i int) int {

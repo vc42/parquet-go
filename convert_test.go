@@ -97,6 +97,54 @@ var conversionTests = [...]struct {
 			Names []string
 		}{ID: 1, Names: []string{}},
 	},
+
+	// These scenarios pin the two widening shapes that previously broke repeated
+	// reconstruction:
+	// 1. a missing optional sibling for every repeated element
+	// 2. a missing earlier optional sibling plus later present siblings, which used
+	//    to expose grouped-by-column rows produced by conversion
+
+	{
+		scenario: "repeated struct missing optional sibling",
+		from: narrowRepeatedRow{
+			Contacts: []narrowRepeatedContact{
+				{Name: "Luke"},
+				{Name: "Leia"},
+			},
+		},
+		to: wideRepeatedRow{
+			Contacts: []wideRepeatedContact{
+				{Name: "Luke"},
+				{Name: "Leia"},
+			},
+		},
+	},
+
+	{
+		scenario: "repeated struct missing and present siblings",
+		from: func() narrowMixedRow {
+			firstAge := int64(7)
+			firstScore := 1.25
+			secondScore := 2.5
+			return narrowMixedRow{
+				Contacts: []narrowMixedContact{
+					{Name: "Luke", Score: &firstScore, Age: nil},
+					{Name: "Leia", Score: &secondScore, Age: &firstAge},
+				},
+			}
+		}(),
+		to: func() wideMixedRow {
+			firstAge := int64(7)
+			firstScore := 1.25
+			secondScore := 2.5
+			return wideMixedRow{
+				Contacts: []wideMixedContact{
+					{Name: "Luke", Score: &firstScore},
+					{Name: "Leia", Age: &firstAge, Score: &secondScore},
+				},
+			}
+		}(),
+	},
 }
 
 func TestConvert(t *testing.T) {
@@ -127,6 +175,44 @@ func TestConvert(t *testing.T) {
 			}
 		})
 	}
+}
+
+type narrowRepeatedContact struct {
+	Name string `parquet:"name"`
+}
+
+type narrowRepeatedRow struct {
+	Contacts []narrowRepeatedContact `parquet:"contacts"`
+}
+
+type wideRepeatedContact struct {
+	Name        string `parquet:"name"`
+	PhoneNumber string `parquet:"phoneNumber,optional"`
+}
+
+type wideRepeatedRow struct {
+	Contacts []wideRepeatedContact `parquet:"contacts"`
+}
+
+type narrowMixedContact struct {
+	Name  string   `parquet:"name"`
+	Score *float64 `parquet:"score,optional"`
+	Age   *int64   `parquet:"age,optional"`
+}
+
+type narrowMixedRow struct {
+	Contacts []narrowMixedContact `parquet:"contacts"`
+}
+
+type wideMixedContact struct {
+	Name        string   `parquet:"name"`
+	PhoneNumber string   `parquet:"phoneNumber,optional"`
+	Age         *int64   `parquet:"age,optional"`
+	Score       *float64 `parquet:"score,optional"`
+}
+
+type wideMixedRow struct {
+	Contacts []wideMixedContact `parquet:"contacts"`
 }
 
 func newString(s string) *string { return &s }
